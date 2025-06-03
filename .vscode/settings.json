@@ -9,10 +9,10 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
-            "name": "user",
+            "name": "test",
             "database": "users",
-            "username": "user",
-            "password": "Coldpath@2935"
+            "username": "root",
+            "askForPassword": true
         }
     ]
 }
