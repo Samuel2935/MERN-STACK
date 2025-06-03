@@ -1,23 +1,22 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 
 function App() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetch("/api/users/")
-      .then((res) => res.json())
-      .then((data) => setUsers(data))
-      .then((data)=> console.log(data));
+    const fetchUsers = async () => {
+      const res = await fetch("http://localhost:5000/api/users");
+      const data = await res.json();
+      setUsers(data);
+    };
+    fetchUsers();
   }, []);
 
   return (
-    <div className="div">
-      <h1>Hello MERN</h1>
+    <div>
+      <h1>Users</h1>
       <ul>
-        {users.map((user) => (
-          <li key={user.id}>{user.name}</li>
-        ))}
+        {users.map(u => <li key={u.id}>{u.name} - {u.email}</li>)}
       </ul>
     </div>
   );

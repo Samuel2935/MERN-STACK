@@ -1,26 +1,36 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
 
-const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml');
+const express = require("express");
+const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const sequelize = require("./config/db");
+const User = require("./models/User");
+const fs = require('fs');
+const yaml = require('yaml');
 
-const app = express(); // ⬅️ Declare app FIRST
+
+// Load the YAML file
+const file = fs.readFileSync('./swagger.yaml', 'utf8');
+const swaggerDocument = yaml.parse(file);
+
+
+const app = express();
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api/users", require("./routes/users"));
+app.use('/api/auth', require('./routes/auth'));
 
-
-// Swagger docs route
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Example route
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from the backend!' });
-});
-app.use('/api/users', require('./routes/users'));
-
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Sync DB and start server
+sequelize
+  .sync()
+  .then(() => {
+    console.log(" MySQL connected and tables synced");
+    app.listen(PORT, () =>
+      console.log(` Server running on http://localhost:${PORT}`)
+    );
+  })
+  .catch((err) => {
+    console.error("MySQL connection error:", err);
+  });
